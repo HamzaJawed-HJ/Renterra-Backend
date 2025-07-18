@@ -49,7 +49,7 @@ export const updateUserProfile = async (req, res) => {
   try {
     // Get user ID from your auth middleware (it sets both ownerId and renterId)
     const userId = req.userId || req.ownerId || req.renterId;
-    const { username, email, location, birthdate, cnicNumber } = req.body;
+    const { fullName, email, location, shopName, shopAddress } = req.body;
 
     if (!userId) {
       return res.status(401).json({ message: 'User authentication required' });
@@ -75,11 +75,11 @@ export const updateUserProfile = async (req, res) => {
 
     // Prepare update data
     const updateData = {};
-    if (username) updateData.username = username;
+    if (fullName) updateData.fullName = fullName;
     if (email) updateData.email = email.toLowerCase();
     if (location) updateData.location = location;
-    if (birthdate) updateData.birthdate = new Date(birthdate);
-    if (cnicNumber) updateData.cnicNumber = cnicNumber;
+    if (shopName) updateData.shopName = shopName;
+    if (shopAddress) updateData.shopAddress = shopAddress;
 
     // Handle image uploads
     if (req.files) {

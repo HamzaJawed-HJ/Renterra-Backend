@@ -24,7 +24,7 @@ app.use(express.json());
 
 // Static file serving for uploads
 // D:\Fyp Course\Renterra-Backend
-const uploadsFolder = path.resolve('D:\\Fyp Course\\Renterra-Backend', 'uploads');
+const uploadsFolder = path.resolve('D:\\New folder', 'uploads');
 app.use('/uploads', express.static(uploadsFolder));
 
 // Routes

@@ -2,7 +2,7 @@
 import RentalRequest from '../models/rentalRequestModel.js';
 import Product from '../models/productModel.js'; // Import the product model to check product validity
 import { createNotification }  from './notificationController.js'; // Import notification controller
-
+import Owner from '../models/owner.js';
 
 // Create Rental Request
 export const createRentalRequest = async (req, res) => {
@@ -15,6 +15,12 @@ export const createRentalRequest = async (req, res) => {
         if (!product) {
             return res.status(404).json({ message: 'Product not found' });
         }
+
+        // ✅ Step 2: Check if the product's owner exists in Owner model
+        // const owner = await Owner.findById(product.ownerID);
+        // if (!owner) {
+        //     return res.status(404).json({ message: 'Owner not found' });
+        // }
 
         // Check if the renter is not trying to rent their own product
         if (product.ownerID.toString() === renterId.toString()) {
@@ -33,6 +39,10 @@ export const createRentalRequest = async (req, res) => {
 
         // Create a notification for the product owner
         await createNotification(product.ownerID, `You have a new rental request for your product "${product.name}" from ${renterId}.`, newRequest._id);
+
+
+        console.log('DEBUG - product.ownerID:', product.ownerID); // should be ObjectId
+console.log('DEBUG - renterId from req:', renterId);
 
         res.status(201).json({ message: 'Rental request created successfully', rentalRequest: newRequest });
     } catch (error) {
