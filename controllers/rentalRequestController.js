@@ -41,7 +41,7 @@ export const createRentalRequest = async (req, res) => {
         await createNotification(product.ownerID, `You have a new rental request for your product "${product.name}" from ${renterId}.`, newRequest._id);
 
 
-        console.log('DEBUG - product.ownerID:', product.ownerID); // should be ObjectId
+console.log('DEBUG - product.ownerID:', product.ownerID); // should be ObjectId
 console.log('DEBUG - renterId from req:', renterId);
 
         res.status(201).json({ message: 'Rental request created successfully', rentalRequest: newRequest });
@@ -62,12 +62,23 @@ export const updateRentalRequestStatus = async (req, res) => {
     try {
         // Find the rental request by ID
         const rentalRequest = await RentalRequest.findById(rentalRequestId);
+        
+        console.log(rentalRequest);
+
         if (!rentalRequest) {
             return res.status(404).json({ message: 'Rental request not found' });
         }
-
+        
+        // FIXED: Handle different user ID fields from middleware
+        const userId = req.ownerId || req.renterId || req.userId || req.user?.id;
+        
+        console.log("rental owner"+rentalRequest.ownerID.toString());
+        console.log("request owner"+userId.toString());
+      
         // Ensure that only the owner can update the request status
-        if (rentalRequest.ownerID.toString() !== req.ownerId.toString()) {
+        if (rentalRequest.ownerID.toString() !== userId) 
+        {
+            
             return res.status(403).json({ message: 'You are not authorized to update this request' });
         }
 

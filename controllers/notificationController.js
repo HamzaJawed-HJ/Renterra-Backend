@@ -23,7 +23,7 @@ export const getNotifications = async (req, res) => {
     const userId  = req.userId; // Get the user ID from request params
 
     try {
-        const notifications = await Notification.find({ userID: userId })
+        const notifications = await Notification.find({  userID: userId })
             .populate('renterRequestID')
             .populate('userID') // Optional: Populate the user data if needed
             .sort({ createdAt: -1 }); // Sort by latest notification first

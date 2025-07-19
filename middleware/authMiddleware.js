@@ -15,11 +15,13 @@ const authMiddleware = (req, res, next) => {
     if(verified.role.toLowerCase() === "renter"){
       req.renterId = verified.id;
       req.userId = verified.id;
+      console.log("owner " +req.renterId )
+
     }
     if(verified.role.toLowerCase() === "owner"){
       req.ownerId = verified.id;
       req.userId = verified.id;
-      // console.log("owner " +req.ownerId )
+      console.log("owner " +req.ownerId )
     }
    
     next();
