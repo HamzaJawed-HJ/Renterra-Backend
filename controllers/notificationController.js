@@ -24,10 +24,20 @@ export const getNotifications = async (req, res) => {
 
     try {
         const notifications = await Notification.find({  userID: userId })
-            .populate('renterRequestID')
-            .populate('userID') // Optional: Populate the user data if needed
+            .populate({
+                path: 'renterRequestID',
+                populate: [
+                    { path: 'productID' },
+                    { path: 'ownerID' },
+                    { path: 'renterID' }
+                ]
+            })
+            // .populate('userID') // Optional: Populate the user data if needed
             .sort({ createdAt: -1 }); // Sort by latest notification first
 
+
+
+            
         res.status(200).json(notifications);
     } catch (error) {
         res.status(500).json({ message: error.message });

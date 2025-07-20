@@ -10,6 +10,8 @@ const notificationSchema = new mongoose.Schema({
     userID: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User', // Reference to the User who gets notified
+            //    ref: 'Owner', // Reference to the User who gets notified
+
         required: true,
     },
     message: {

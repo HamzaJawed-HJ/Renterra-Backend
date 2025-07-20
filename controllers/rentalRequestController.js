@@ -1,19 +1,31 @@
 // controllers/rentalRequestController.js
 import RentalRequest from '../models/rentalRequestModel.js';
 import Product from '../models/productModel.js'; // Import the product model to check product validity
-import { createNotification }  from './notificationController.js'; // Import notification controller
+import { createNotification } from './notificationController.js'; // Import notification controller
 import Owner from '../models/owner.js';
 
 // Create Rental Request
 export const createRentalRequest = async (req, res) => {
     const { productId } = req.body; // Get the product ID from the request body
     const renterId = req.renterId; // Assuming the user is the renter
- 
+
     try {
         // Find the product to make sure it exists
         const product = await Product.findById(productId);
         if (!product) {
             return res.status(404).json({ message: 'Product not found' });
+        }
+
+        // Check if a request already exists from this renter for the same product
+        const existingRequest = await RentalRequest.findOne({
+            productID: productId,
+            renterID: renterId,
+        });
+
+        if (existingRequest) {
+            return res.status(400).json({
+                message: 'You have already sent a rental request for this product.',
+            });
         }
 
         // ✅ Step 2: Check if the product's owner exists in Owner model
@@ -41,8 +53,8 @@ export const createRentalRequest = async (req, res) => {
         await createNotification(product.ownerID, `You have a new rental request for your product "${product.name}" from ${renterId}.`, newRequest._id);
 
 
-console.log('DEBUG - product.ownerID:', product.ownerID); // should be ObjectId
-console.log('DEBUG - renterId from req:', renterId);
+        console.log('DEBUG - product.ownerID:', product.ownerID); // should be ObjectId
+        console.log('DEBUG - renterId from req:', renterId);
 
         res.status(201).json({ message: 'Rental request created successfully', rentalRequest: newRequest });
     } catch (error) {
@@ -62,23 +74,22 @@ export const updateRentalRequestStatus = async (req, res) => {
     try {
         // Find the rental request by ID
         const rentalRequest = await RentalRequest.findById(rentalRequestId);
-        
+
         console.log(rentalRequest);
 
         if (!rentalRequest) {
             return res.status(404).json({ message: 'Rental request not found' });
         }
-        
+
         // FIXED: Handle different user ID fields from middleware
         const userId = req.ownerId || req.renterId || req.userId || req.user?.id;
-        
-        console.log("rental owner"+rentalRequest.ownerID.toString());
-        console.log("request owner"+userId.toString());
-      
+
+        console.log("rental owner" + rentalRequest.ownerID.toString());
+        console.log("request owner" + userId.toString());
+
         // Ensure that only the owner can update the request status
-        if (rentalRequest.ownerID.toString() !== userId) 
-        {
-            
+        if (rentalRequest.ownerID.toString() !== userId) {
+
             return res.status(403).json({ message: 'You are not authorized to update this request' });
         }
 
@@ -92,7 +103,7 @@ export const updateRentalRequestStatus = async (req, res) => {
 };
 
 // Get All Rental Requests for a User
-export const getAllRentalRequests = async (req, res) => {    
+export const getAllRentalRequests = async (req, res) => {
     // FIXED: Handle different user ID fields from middleware
     const userId = req.ownerId || req.renterId || req.userId || req.user?.id;
 
@@ -112,14 +123,14 @@ export const getAllRentalRequests = async (req, res) => {
 // Add this new controller function
 export const deleteRentalRequest = async (req, res) => {
     const { rentalRequestId } = req.params;
-    
+
     // Use the same user ID logic as your other functions
     const userId = req.ownerId || req.renterId || req.userId;
-    
+
     try {
         // Find the rental request
         const rentalRequest = await RentalRequest.findById(rentalRequestId);
-        
+
         if (!rentalRequest) {
             return res.status(404).json({ message: 'Rental request not found' });
         }
@@ -131,18 +142,18 @@ export const deleteRentalRequest = async (req, res) => {
 
         // Only allow canceling pending requests
         if (rentalRequest.status !== 'pending') {
-            return res.status(400).json({ 
-                message: `Cannot cancel ${rentalRequest.status} requests. Only pending requests can be canceled.` 
+            return res.status(400).json({
+                message: `Cannot cancel ${rentalRequest.status} requests. Only pending requests can be canceled.`
             });
         }
 
         // Delete the request
         await RentalRequest.findByIdAndDelete(rentalRequestId);
-        
-        res.status(200).json({ 
-            message: 'Rental request canceled successfully' 
+
+        res.status(200).json({
+            message: 'Rental request canceled successfully'
         });
-        
+
     } catch (error) {
         console.error('❌ Error deleting rental request:', error);
         res.status(500).json({ message: error.message });
