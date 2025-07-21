@@ -69,6 +69,19 @@ const userSchema = new Schema({
     refreshToken: {
         type: String
     }
+
+    // Add these
+    , profilePicture: {
+        type: String,
+        default: '',
+    },
+    cnicPicture: {
+        type: String,
+        default: '',
+    },
+
+
+
 }, { timestamps: true })
 
 export default model("User", userSchema)

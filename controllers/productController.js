@@ -1,6 +1,11 @@
 import Product from '../models/productModel.js';
 import { uploadFiles } from '../middleware/multer.js';
+import RentalRequest from '../models/rentalRequestModel.js';
+import Notification  from '../models/notificationModel.js';
+// import RentalRequest from '../models/RentalRequest.js'; // adjust path as needed
+
 import path from 'path';
+
 
 // Create Product
 export const createProduct = async (req, res) => {
@@ -76,6 +81,7 @@ export const editProduct = async (req, res) => {
     }
 };
 
+
 // Delete Product
 export const deleteProduct = async (req, res) => {
     const { productId } = req.params;
@@ -89,12 +95,63 @@ export const deleteProduct = async (req, res) => {
             return res.status(403).json({ message: 'You are not authorized to delete this product' });
         }
 
+        // Step 1: Find all rental requests linked to the product
+        const rentalRequests = await RentalRequest.find({ productID: productId });
+        const rentalRequestIds = rentalRequests.map(request => request._id);
+
+        // Step 2: Delete related notifications
+        if (rentalRequestIds.length > 0) {
+            await Notification.deleteMany({ renterRequestID: { $in: rentalRequestIds } });
+        }
+
+        // Step 3: Delete related rental requests
+        await RentalRequest.deleteMany({ productID: productId });
+
+        // Step 4: Finally, delete the product
         await Product.findByIdAndDelete(productId);
-        res.status(200).json({ message: 'Product deleted successfully' });
+
+        res.status(200).json({ message: 'Product and related data deleted successfully' });
+
     } catch (error) {
+        console.error('Delete Error:', error);
         res.status(500).json({ message: error.message });
     }
 };
+
+
+
+
+// // Delete Product
+// export const deleteProduct = async (req, res) => {
+//     const { productId } = req.params;
+
+//     try {
+//         const product = await Product.findById(productId);
+//         if (!product) return res.status(404).json({ message: 'Product not found' });
+
+//         // Ensure the logged-in user is the owner of the product
+//         if (product.ownerID.toString() !== req.ownerId.toString()) {
+//             return res.status(403).json({ message: 'You are not authorized to delete this product' });
+//         }
+
+        
+        
+//         // Delete related rental requests
+//         const deletedRequests = await RentalRequest.find({ productID: productId });
+//         const deletedRequestIds = deletedRequests.map(r => r._id);
+        
+//         await RentalRequest.deleteMany({ productID: productId });
+        
+//         // Delete related notifications
+//         await Notification.deleteMany({ renterRequestID: { $in: deletedRequestIds } });
+        
+//         await Product.findByIdAndDelete(productId);
+//         res.status(200).json({ message: 'Product deleted successfully' });
+   
+//     } catch (error) {
+//         res.status(500).json({ message: error.message });
+//     }
+// };
 
     
 // Get Product By ID

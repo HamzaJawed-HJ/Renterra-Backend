@@ -77,3 +77,35 @@ export const login = async (req, res) => {
   }
 };
 
+
+export const uploadUserImage=  async (req, res) => {
+  try {
+    const userId = req.userId; // Set by authMiddleware
+    const profilePicture = req.files['personalPicture']?.[0];
+    const cnicPicture = req.files['cnicPicture']?.[0];
+
+    const updatedFields = {};
+    if (profilePicture) updatedFields.profilePicture = `/uploads/${profilePicture.filename}`;
+    if (cnicPicture) updatedFields.cnicPicture = `/uploads/${cnicPicture.filename}`;
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { $set: updatedFields },
+      { new: true }
+    );
+
+    res.status(200).json({
+      message: 'Files uploaded successfully',
+      user: updatedUser,
+    });
+  } catch (error) {
+    console.error('Upload error:', error);
+    res.status(500).json({ message: 'Upload failed', error: error.message });
+  }
+};
+
+
+
+
+
+

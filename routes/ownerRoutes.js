@@ -2,9 +2,15 @@
 import express from 'express';
 const router = express.Router();
 import { uploadFiles } from '../middleware/multer.js'; // Correct case
-import {register, login } from '../controllers/renterController.js'
- 
+import {register, login ,  uploadUserImage } from '../controllers/renterController.js'
+import authMiddleware from '../middleware/authMiddleware.js'; // Use your existing auth middleware
+
+
 router.post('/register',register);
+
+
+router.post('/upload', authMiddleware, uploadFiles,uploadUserImage);
+
 
 // router.post('/upload', uploadFiles, (req, res) => {
 //     try {

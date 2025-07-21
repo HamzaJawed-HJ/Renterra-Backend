@@ -39,6 +39,22 @@ const userSchema = new Schema({
         type: String,
         default: "owner",
     },
+
+
+        // Add these
+    profilePicture: {
+        type: String,
+        default: '',
+    },
+    cnicPicture: {
+        type: String,
+        default: '',
+    },
+
+
+
+
+
 }, { timestamps: true })
 
 export default model("Owner", userSchema)

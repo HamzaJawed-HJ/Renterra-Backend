@@ -3,6 +3,8 @@ import RentalRequest from '../models/rentalRequestModel.js';
 import Product from '../models/productModel.js'; // Import the product model to check product validity
 import { createNotification } from './notificationController.js'; // Import notification controller
 import Owner from '../models/owner.js';
+import Notification  from '../models/notificationModel.js';
+
 
 // Create Rental Request
 export const createRentalRequest = async (req, res) => {
@@ -149,6 +151,10 @@ export const deleteRentalRequest = async (req, res) => {
 
         // Delete the request
         await RentalRequest.findByIdAndDelete(rentalRequestId);
+
+  // ❗ Delete related notifications
+        await Notification.deleteMany({ renterRequestID: rentalRequestId });
+
 
         res.status(200).json({
             message: 'Rental request canceled successfully'

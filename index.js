@@ -11,6 +11,8 @@ import userRoutes from './routes/userRoutes.js';
 import productRoutes from './routes/productRoutes.js';
 import rentalRequestRoutes from './routes/rentalRequestRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
+import chatRoutes from './routes/chatRoutes.js'; // ✅ Add this line
+
 
 // Load environment variables
 dotenv.config();
@@ -34,6 +36,8 @@ app.use('/api/users', userRoutes);
 app.use('/api/products', productRoutes);       
 app.use('/api/rentalRequests', rentalRequestRoutes); 
 app.use('/api/notifications', notificationRoutes); 
+app.use('/api/chat', chatRoutes);
+
 
 // Health check endpoint
 app.get('/', (req, res) => {
