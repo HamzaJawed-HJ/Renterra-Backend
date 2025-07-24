@@ -85,8 +85,8 @@ export const uploadUserImage=  async (req, res) => {
     const cnicPicture = req.files['cnicPicture']?.[0];
 
     const updatedFields = {};
-    if (profilePicture) updatedFields.profilePicture = `/uploads/${profilePicture.filename}`;
-    if (cnicPicture) updatedFields.cnicPicture = `/uploads/${cnicPicture.filename}`;
+    if (profilePicture) updatedFields.profilePicture = `${profilePicture.filename}`;
+    if (cnicPicture) updatedFields.cnicPicture = `${cnicPicture.filename}`;
 
     const updatedUser = await User.findByIdAndUpdate(
       userId,

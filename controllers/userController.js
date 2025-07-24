@@ -12,17 +12,17 @@ import fs from 'fs';
 export const getUserProfile = async (req, res) => {
   try {
     const { userId } = req.params;
-    
+
     // Find user and exclude password
     const user = await User.findById(userId).select('-password');
-    
+
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
     // Get user statistics
     const totalProducts = await Product.countDocuments({ ownerID: userId });
-    const totalRequests = await RentalRequest.countDocuments({ 
+    const totalRequests = await RentalRequest.countDocuments({
       $or: [
         { renterID: userId },
         { ownerID: userId }
@@ -51,7 +51,7 @@ export const updateUserProfile = async (req, res) => {
   try {
     // Get user ID from your auth middleware (it sets both ownerId and renterId)
     const userId = req.userId || req.ownerId || req.renterId;
-    
+
     const { fullName, email, area, shopName, shopAddress } = req.body;
 
     if (!userId) {
@@ -66,11 +66,11 @@ export const updateUserProfile = async (req, res) => {
 
     // Check if email is already taken by another user
     if (email && email !== user.email) {
-      const existingUser = await User.findOne({ 
+      const existingUser = await User.findOne({
         email: email.toLowerCase(),
         _id: { $ne: userId }
       });
-      
+
       if (existingUser) {
         return res.status(400).json({ message: 'Email is already registered' });
       }
@@ -84,18 +84,19 @@ export const updateUserProfile = async (req, res) => {
     if (shopName) updateData.shopName = shopName;
     if (shopAddress) updateData.shopAddress = shopAddress;
 
-    // // Handle image uploads
-    // if (req.files) {
-    //   if (req.files.personalPicture && req.files.personalPicture[0]) {
-    //     // Delete old personal picture if exists
-    //     if (user.personalPicture) {
-    //       const oldPersonalPath = path.join(process.cwd(), 'uploads', user.personalPicture);
-    //       if (fs.existsSync(oldPersonalPath)) {
-    //         fs.unlinkSync(oldPersonalPath);
-    //       }
-    //     }
-    //     updateData.personalPicture = path.basename(req.files.personalPicture[0].path);
-    //   }
+    // Handle image uploads
+    if (req.files) {
+      if (req.files.personalPicture && req.files.personalPicture[0]) {
+        // Delete old personal picture if exists
+        if (user.personalPicture) {
+          const oldPersonalPath = path.join(process.cwd(), 'uploads', user.personalPicture);
+          if (fs.existsSync(oldPersonalPath)) {
+            fs.unlinkSync(oldPersonalPath);
+          }
+        }
+        updateData.personalPicture = path.basename(req.files.personalPicture[0].path);
+      }
+    }
 
     //   if (req.files.cnicPicture && req.files.cnicPicture[0]) {
     //     // Delete old CNIC picture if exists
@@ -123,13 +124,13 @@ export const updateUserProfile = async (req, res) => {
 
   } catch (error) {
     console.error('Update profile error:', error);
-    
+
     // Handle validation errors
     if (error.name === 'ValidationError') {
       const validationErrors = Object.values(error.errors).map(err => err.message);
-      return res.status(400).json({ 
-        message: 'Validation failed', 
-        errors: validationErrors 
+      return res.status(400).json({
+        message: 'Validation failed',
+        errors: validationErrors
       });
     }
 
@@ -218,7 +219,7 @@ export const deleteUserAccount = async (req, res) => {
       ]
     });
 
-    
+
 
     // Delete user's profile images
     if (user.profilePicture) {
@@ -250,10 +251,10 @@ export const deleteUserAccount = async (req, res) => {
 export const getUserPublicProfile = async (req, res) => {
   try {
     const { userId } = req.params;
-    
+
     // Find user and exclude sensitive information
     const user = await User.findById(userId).select('-password');
-    
+
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
@@ -283,17 +284,17 @@ export const getUserPublicProfile = async (req, res) => {
 export const getReneterUserProfile = async (req, res) => {
   try {
     const { userId } = req.params;
-    
+
     // Find user and exclude password
     const user = await Owner.findById(userId).select('-password');
-    
+
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
     // Get user statistics
     const totalProducts = await Product.countDocuments({ ownerID: userId });
-    const totalRequests = await RentalRequest.countDocuments({ 
+    const totalRequests = await RentalRequest.countDocuments({
       $or: [
         { renterID: userId },
         { ownerID: userId }
@@ -324,7 +325,7 @@ export const updateReneterUserProfile = async (req, res) => {
   try {
     // Get user ID from your auth middleware (it sets both ownerId and renterId)
     const userId = req.userId || req.ownerId || req.renterId;
-    
+
     const { fullName, email, area, phoneNumber } = req.body;
 
     if (!userId) {
@@ -339,11 +340,11 @@ export const updateReneterUserProfile = async (req, res) => {
 
     // Check if email is already taken by another user
     if (email && email !== user.email) {
-      const existingUser = await User.findOne({ 
+      const existingUser = await User.findOne({
         email: email.toLowerCase(),
         _id: { $ne: userId }
       });
-      
+
       if (existingUser) {
         return res.status(400).json({ message: 'Email is already registered' });
       }
@@ -355,8 +356,8 @@ export const updateReneterUserProfile = async (req, res) => {
     if (email) updateData.email = email.toLowerCase();
     if (area) updateData.area = area;
     if (phoneNumber) updateData.phoneNumber = phoneNumber;
-    
-  
+
+
     // Update user
     const updatedUser = await Owner.findByIdAndUpdate(
       userId,
@@ -371,13 +372,13 @@ export const updateReneterUserProfile = async (req, res) => {
 
   } catch (error) {
     console.error('Update profile error:', error);
-    
+
     // Handle validation errors
     if (error.name === 'ValidationError') {
       const validationErrors = Object.values(error.errors).map(err => err.message);
-      return res.status(400).json({ 
-        message: 'Validation failed', 
-        errors: validationErrors 
+      return res.status(400).json({
+        message: 'Validation failed',
+        errors: validationErrors
       });
     }
 
@@ -448,7 +449,7 @@ export const deleteReneterUserAccount = async (req, res) => {
 
     // Delete user's products and associated images
     const userProducts = await Product.find({ ownerID: userId });
-   
+
     for (const product of userProducts) {
       if (product.image) {
         const imagePath = path.join(process.cwd(), 'uploads', product.image);
@@ -467,7 +468,7 @@ export const deleteReneterUserAccount = async (req, res) => {
       ]
     });
 
-    
+
     // Delete user's profile images
     if (user.profilePicture) {
       const personalPath = path.join(process.cwd(), 'uploads', user.profilePicture);

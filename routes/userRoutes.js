@@ -27,7 +27,7 @@ router.get('/public-profile/:userId', getUserPublicProfile); // Public profile (
 // Update profile with file uploads (using your existing multer setup)
 router.put('/profile/update',
   authMiddleware,   // Use your existing auth middleware
-  // uploadFiles,      // Use your existing multer middleware
+  uploadFiles,      // Use your existing multer middleware
   updateUserProfile
 );
 
