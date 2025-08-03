@@ -81,6 +81,11 @@ const userSchema = new Schema({
     },
 
 
+    isBlocked: {
+  type: Boolean,
+  default: false,
+}
+
 
 }, { timestamps: true })
 

@@ -65,6 +65,12 @@ export const login = async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ message: 'Invalid credentials' });
 
+    if (user.isBlocked) {
+      return res.status(403).json({ message: 'Your account has been blocked by the admin' });
+    }
+
+
+
     const token = jwt.sign(
       { id: user._id, role: user.role },
       process.env.JWT_SECRET,

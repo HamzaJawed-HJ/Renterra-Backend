@@ -4,7 +4,10 @@ import {
     loginAdmin, getAllUsers, getUser, createAdmin,
     getAllRenters, getRenter,
     getAllRentalRequestsAdmin,
-    getAllProductsWithOwnerDetails
+    getAllProductsWithOwnerDetails,
+    toggleBlockUser,
+    toggleBlockOwner
+
 } from '../controllers/adminController.js';
 import authMiddleware from '../middleware/authMiddleware.js';
 
@@ -38,6 +41,10 @@ router.get("/getAllProductsWithOwnerDetails",
      authMiddleware, getAllProductsWithOwnerDetails);
 
 
+
+     // Block/unblock routes
+router.patch('/toggleBlockOwner/:id', authMiddleware, toggleBlockUser);
+router.patch('/toggleBlockUser/:id', authMiddleware, toggleBlockOwner);
 
 
 

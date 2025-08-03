@@ -6,11 +6,11 @@ import Owner from '../models/owner.js';
 export const register = async (req, res) => {
   const { fullName, email, password, phoneNumber, role, cnic, area } = req.body;
 
-  if(!fullName || !email || !password || !phoneNumber || !role || !cnic || !area) {
+  if (!fullName || !email || !password || !phoneNumber || !role || !cnic || !area) {
     return res.status(400).json({ message: 'All fields are required' });
   }
 
-  if(role !== 'renter') {
+  if (role !== 'renter') {
     return res.status(400).json({ message: 'Invalid role' });
   }
 
@@ -51,6 +51,12 @@ export const login = async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ message: 'Invalid credentials' });
 
+    if (user.isBlocked) {
+      return res.status(403).json({ message: 'Your account has been blocked by the admin' });
+    }
+
+
+
     const token = jwt.sign(
       { id: user._id, role: user.role },
       process.env.JWT_SECRET,
@@ -67,7 +73,7 @@ export const login = async (req, res) => {
 
 //upload Image
 
-export const uploadOwnerImage=  async (req, res) => {
+export const uploadOwnerImage = async (req, res) => {
   try {
     const userId = req.userId; // Set by authMiddleware
     const profilePicture = req.files['personalPicture']?.[0];

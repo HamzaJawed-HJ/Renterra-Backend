@@ -41,7 +41,7 @@ const userSchema = new Schema({
     },
 
 
-        // Add these
+    // Add these
     profilePicture: {
         type: String,
         default: '',
@@ -50,6 +50,11 @@ const userSchema = new Schema({
         type: String,
         default: '',
     },
+
+    isBlocked: {
+        type: Boolean,
+        default: false,
+    }
 
 
 

@@ -192,6 +192,58 @@ export const getAllProductsWithOwnerDetails = async (req, res) => {
 };
 
 
+// Add these two controllers to adminController.js
+
+// Toggle block/unblock for Renter (User model)
+export const toggleBlockUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findById(id);
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    user.isBlocked = !user.isBlocked;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: `User has been ${user.isBlocked ? 'blocked' : 'unblocked'}.`,
+      user,
+    });
+  } catch (error) {
+    console.error('Error toggling block status for user:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+// Toggle block/unblock for Owner (Owner model)
+export const toggleBlockOwner = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const owner = await Owner.findById(id);
+
+    if (!owner) {
+      return res.status(404).json({ success: false, message: 'Owner not found' });
+    }
+
+    owner.isBlocked = !owner.isBlocked;
+    await owner.save();
+
+    res.status(200).json({
+      success: true,
+      message: `Owner has been ${owner.isBlocked ? 'blocked' : 'unblocked'}.`,
+      owner,
+    });
+  } catch (error) {
+    console.error('Error toggling block status for owner:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+
+
 
 
 
