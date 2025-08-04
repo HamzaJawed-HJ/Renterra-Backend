@@ -11,7 +11,7 @@ import fs from 'fs';
 // Get user profile by ID
 export const getUserProfile = async (req, res) => {
   try {
-    const { userId } = req.params;
+    const userId =  req.userId || req.ownerId || req.renterId; // from decoded token set in middleware
 
     // Find user and exclude password
     const user = await User.findById(userId).select('-password');
@@ -250,7 +250,7 @@ export const deleteUserAccount = async (req, res) => {
 // Get user public profile (for other users to view)
 export const getUserPublicProfile = async (req, res) => {
   try {
-    const { userId } = req.params;
+    const userId =  req.userId || req.ownerId || req.renterId; // from decoded token set in middleware
 
     // Find user and exclude sensitive information
     const user = await User.findById(userId).select('-password');
@@ -283,7 +283,7 @@ export const getUserPublicProfile = async (req, res) => {
 // Get Renteruser profile by ID
 export const getReneterUserProfile = async (req, res) => {
   try {
-    const { userId } = req.params;
+     const userId =  req.userId || req.ownerId || req.renterId; // from decoded token set in middleware
 
     // Find user and exclude password
     const user = await Owner.findById(userId).select('-password');

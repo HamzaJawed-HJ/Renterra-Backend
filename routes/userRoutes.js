@@ -21,8 +21,8 @@ import { uploadFiles } from '../middleware/multer.js'; // Use your existing mult
 const router = express.Router();
 
 // Profile Routes
-router.get('/profile/:userId', authMiddleware, getUserProfile);
-router.get('/public-profile/:userId', getUserPublicProfile); // Public profile (no auth required)
+router.get('/profile', authMiddleware, getUserProfile);
+router.get('/public-profile', getUserPublicProfile); // Public profile (no auth required)
 
 // Update profile with file uploads (using your existing multer setup)
 router.put('/profile/update',
@@ -42,8 +42,8 @@ router.delete('/delete-account', authMiddleware, deleteUserAccount);
 
 // Profile Routes
 
-router.get('/profile-renter/:userId', authMiddleware, getReneterUserProfile);
-router.get('/public-renter-profile/:userId', getReneterUserProfile); // Public profile (no auth required)
+router.get('/profile-renter', authMiddleware, getReneterUserProfile);
+router.get('/public-renter-profile', getReneterUserProfile); // Public profile (no auth required)
 
 // Update profile with file uploads (using your existing multer setup)
 router.put('/profile-renter/update',
