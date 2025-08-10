@@ -106,7 +106,7 @@ const loginAdmin = async (req, res) => {
 
 const getAllUsers = async (req, res) => {
     try {
-        const owners = await Owner.find();
+        const owners = await Owner.find().sort({ createdAt: -1 }); // newest first
         res.status(200).json({ success: true, renters: owners });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Server error' });
@@ -130,7 +130,7 @@ const getUser = async (req, res) => {
 
 const getAllRenters = async (req, res) => {
     try {
-        const owners = await User.find();
+        const owners = await User.find().sort({ createdAt: -1 }); // newest first
         res.status(200).json({ success: true, owners });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Server error' });

@@ -22,7 +22,7 @@ const router = express.Router();
 
 // Profile Routes
 router.get('/profile', authMiddleware, getUserProfile);
-router.get('/public-profile', getUserPublicProfile); // Public profile (no auth required)
+router.get('/public-profile', authMiddleware, getUserPublicProfile); // Public profile (no auth required)
 
 // Update profile with file uploads (using your existing multer setup)
 router.put('/profile/update',
@@ -43,7 +43,7 @@ router.delete('/delete-account', authMiddleware, deleteUserAccount);
 // Profile Routes
 
 router.get('/profile-renter', authMiddleware, getReneterUserProfile);
-router.get('/public-renter-profile', getReneterUserProfile); // Public profile (no auth required)
+router.get('/public-renter-profile', authMiddleware, getReneterUserProfile); // Public profile (no auth required)
 
 // Update profile with file uploads (using your existing multer setup)
 router.put('/profile-renter/update',
