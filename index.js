@@ -44,7 +44,7 @@ app.use('/api/admin', adminRoutes);
 // Health check endpoint
 app.get('/', (req, res) => {
   res.json({ 
-    message: 'RentBazaar API is running!',
+    message: 'Renterra API is running!',
     version: '1.0.0',
     endpoints: {
       auth: '/api/auth',
@@ -86,7 +86,7 @@ mongoose.connect(process.env.DB_URI, {
 })
   .then(() => {
     console.log('MongoDB connected successfully!');
-    console.log(`RentBazaar Backend is ready!`);
+    console.log(`Renterra Backend is ready!`);
   })
   .catch(err => {
     console.error('MongoDB connection error:', err.message);
