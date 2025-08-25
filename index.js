@@ -14,6 +14,7 @@ import notificationRoutes from './routes/notificationRoutes.js';
 import chatRoutes from './routes/chatRoutes.js'; // ✅ Add this line
 import adminRoutes from './routes/adminRoutes.js';
 
+import agreementRoutes from "./routes/agreementRoutes.js";
 
 // Load environment variables
 dotenv.config();
@@ -39,6 +40,9 @@ app.use('/api/rentalRequests', rentalRequestRoutes);
 app.use('/api/notifications', notificationRoutes); 
 app.use('/api/chat', chatRoutes);
 app.use('/api/admin', adminRoutes);
+app.use("/api/agreements", agreementRoutes);
+
+
 
 
 // Health check endpoint

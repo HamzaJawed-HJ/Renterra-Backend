@@ -142,23 +142,49 @@ router.post('/message', authMiddleware, async (req, res) => {
 });
 
 
-router.get('/messages/:conversationId', authMiddleware, async (req, res) => {
+// router.get('/messages/:conversationId', authMiddleware, async (req, res) => {
+//   try {
+//     const messages = await Message.find({ conversationId: req.params.conversationId })
+//       .sort({ createdAt: 1 });
+
+//     // res.status(200).json(messages);
+
+//     res.status(200).json({
+//       userId: req.userId,     // 👈 this adds the current user's ID
+//       messages                // 👈 array of messages
+//     });
+
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ message: "Failed to load messages" });
+//   }
+// });
+
+
+router.get("/messages/:conversationId", authMiddleware, async (req, res) => {
   try {
-    const messages = await Message.find({ conversationId: req.params.conversationId })
-      .sort({ createdAt: 1 });
+    const { conversationId } = req.params;
 
-    // res.status(200).json(messages);
+    // 1. Fetch messages
+    const messages = await Message.find({ conversationId }).sort({ createdAt: 1 });
 
+    // 2. Mark all messages from OTHER users as seen
+    await Message.updateMany(
+      { conversationId, senderId: { $ne: req.userId }, seen: false },
+      { $set: { seen: true } }
+    );
+
+    // 3. Return response (same structure as before ✅)
     res.status(200).json({
-      userId: req.userId,     // 👈 this adds the current user's ID
-      messages                // 👈 array of messages
+      userId: req.userId,
+      messages,
     });
-
   } catch (err) {
-    console.error(err);
+    console.error("Error fetching messages:", err);
     res.status(500).json({ message: "Failed to load messages" });
   }
 });
+
 
 
 export default router; 

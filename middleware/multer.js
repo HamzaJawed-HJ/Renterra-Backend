@@ -25,3 +25,11 @@ export const uploadFiles = upload.fields([
     { name: 'cnicPicture', maxCount: 1 },
     { name: 'image', maxCount: 1 }, 
 ]);
+
+
+export const UPLOADS_DIR = path.resolve("uploads");
+export const AGREEMENTS_DIR = path.join(UPLOADS_DIR, "agreements");
+
+[UPLOADS_DIR, AGREEMENTS_DIR].forEach((dir) => {
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+});
