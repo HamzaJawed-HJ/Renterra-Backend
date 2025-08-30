@@ -15,6 +15,8 @@ export const generateAgreement = async (req, res) => {
       return res.status(400).json({ message: "rentalRequestId, pickupDate and returnDate are required" });
     }
 
+    
+
     // Grab the rentalRequest + related documents
     const rr = await RentalRequest.findById(rentalRequestId)
       .populate("productID")
@@ -22,6 +24,16 @@ export const generateAgreement = async (req, res) => {
       .populate("renterID"); // ref: 'Owner'
 
     if (!rr) return res.status(404).json({ message: "Rental request not found" });
+
+// 1️⃣ Check if agreement already exists for this rental request
+const existingAgreement = await Agreement.findOne({ rentalRequestId });
+if (existingAgreement) {
+  return res.status(400).json({
+    success: false,
+    message: "Agreement already exists for this rental request",
+    agreement: existingAgreement, // you can return it if you want
+  });
+}
 
     // Build file path
     const fileName = `agreement-${rentalRequestId}-${Date.now()}.pdf`;
@@ -43,15 +55,16 @@ export const generateAgreement = async (req, res) => {
       const cx = doc.page.width / 2;
       const cy = doc.page.height / 2;
       doc.rotate(-35, { origin: [cx, cy] });
-      doc.text(text, cx - 300, cy - 40, { width: 600, align: "center" });
+      doc.text(text, cx - 230, cy - 40, { width: 600, align: "center" });
       doc.restore();
       doc.opacity(1);
     };
-    addWatermark();
+   
 
     // Header
+     doc.moveDown(5);
     doc.fontSize(22).text("Rental Agreement", { align: "center" });
-    doc.moveDown();
+    doc.moveDown(2);
 
     // Parties
     doc.fontSize(12).text("PARTIES", { underline: true });
@@ -92,7 +105,7 @@ export const generateAgreement = async (req, res) => {
     doc.text("Owner Signature: __________________________");
     doc.moveDown();
     doc.text("Renter Signature: _________________________");
-
+ addWatermark();
     doc.end();
 
     // Wait until the file is fully written
@@ -211,7 +224,7 @@ export const getAgreementDetails = async (req, res) => {
     res.json({
       renter: rentalRequest.renterID,
       owner: rentalRequest.ownerID,
-      car: rentalRequest.productID,
+      product: rentalRequest.productID,
     });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error });

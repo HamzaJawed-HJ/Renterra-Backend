@@ -6,7 +6,7 @@ import {
   listMyAgreements,
   getAgreement,
   downloadAgreement,
-  getAgreementDetails
+  getAgreementDetails,
 } from "../controllers/agreementController.js";
 
 const router = express.Router();
@@ -18,7 +18,7 @@ router.post("/generate", authMiddleware, generateAgreement);
 router.get("/", authMiddleware, listMyAgreements);
 
 // Get one agreement's metadata
-router.get("/:id", authMiddleware, getAgreement);
+router.get("/single/:id", authMiddleware, getAgreement);
 
 // Download the PDF
 router.get("/:id/download", authMiddleware, downloadAgreement);
