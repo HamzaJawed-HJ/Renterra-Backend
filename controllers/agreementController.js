@@ -102,9 +102,9 @@ if (existingAgreement) {
     doc.moveDown(2);
 
     // Signatures (no digital sig required; placeholders)
-    doc.text("Owner Signature: __________________________");
-    doc.moveDown();
-    doc.text("Renter Signature: _________________________");
+    // doc.text("Owner Signature: __________________________");
+    // doc.moveDown();
+    // doc.text("Renter Signature: _________________________");
  addWatermark();
     doc.end();
 
@@ -160,63 +160,18 @@ export const listMyAgreements = async (req, res) => {
   }
 };
 
-// Get one agreement metadata (JSON)
-export const getAgreement = async (req, res) => {
-  try {
-    const ag = await Agreement.findById(req.params.id)
-      .populate("productID", "name category location")
-      .populate("ownerID", "fullName email")
-      .populate("renterID", "fullName email");
-
-    if (!ag) return res.status(404).json({ message: "Agreement not found" });
-
-    // Simple access control: admin or participant only
-    const me = req.userId || req.ownerId || req.renterId || req.adminId;
-    if (!req.adminId && String(ag.ownerID?._id) !== String(me) && String(ag.renterID?._id) !== String(me)) {
-      return res.status(403).json({ message: "Forbidden" });
-    }
-
-    return res.status(200).json({ success: true, agreement: ag });
-  } catch (err) {
-    console.error("getAgreement error:", err);
-    return res.status(500).json({ message: "Server error" });
-  }
-};
-
-// Download/stream the PDF file
-export const downloadAgreement = async (req, res) => {
-  try {
-    const ag = await Agreement.findById(req.params.id);
-    if (!ag) return res.status(404).json({ message: "Agreement not found" });
-
-    // Simple access control again
-    const me = req.userId || req.ownerId || req.renterId || req.adminId;
-    if (!req.adminId && String(ag.ownerID) !== String(me) && String(ag.renterID) !== String(me)) {
-      return res.status(403).json({ message: "Forbidden" });
-    }
-
-    if (!fs.existsSync(ag.filePath)) {
-      return res.status(410).json({ message: "File no longer exists on server" });
-    }
-
-    return res.download(ag.filePath, ag.fileName);
-  } catch (err) {
-    console.error("downloadAgreement error:", err);
-    return res.status(500).json({ message: "Server error" });
-  }
-};
 
 
-
+//data dtaiied through rental request id 
 export const getAgreementDetails = async (req, res) => {
   try {
     const { rentalRequestId } = req.params;
-
+    
     const rentalRequest = await RentalRequest.findById(rentalRequestId)
-      .populate('productID')  // fetch car details
-      .populate('ownerID')    // fetch owner details
-      .populate('renterID');  // fetch renter details
-
+    .populate('productID')  // fetch car details
+    .populate('ownerID')    // fetch owner details
+    .populate('renterID');  // fetch renter details
+    
     if (!rentalRequest) {
       return res.status(404).json({ message: 'Rental request not found' });
     }
@@ -230,3 +185,49 @@ export const getAgreementDetails = async (req, res) => {
     res.status(500).json({ message: 'Server error', error });
   }
 };
+
+    // // Get one agreement metadata (JSON)
+    // export const getAgreement = async (req, res) => {
+    //   try {
+    //     const ag = await Agreement.findById(req.params.id)
+    //       .populate("productID", "name category location")
+    //       .populate("ownerID", "fullName email")
+    //       .populate("renterID", "fullName email");
+    
+    //     if (!ag) return res.status(404).json({ message: "Agreement not found" });
+    
+    //     // Simple access control: admin or participant only
+    //     const me = req.userId || req.ownerId || req.renterId || req.adminId;
+    //     if (!req.adminId && String(ag.ownerID?._id) !== String(me) && String(ag.renterID?._id) !== String(me)) {
+    //       return res.status(403).json({ message: "Forbidden" });
+    //     }
+    
+    //     return res.status(200).json({ success: true, agreement: ag });
+    //   } catch (err) {
+    //     console.error("getAgreement error:", err);
+    //     return res.status(500).json({ message: "Server error" });
+    //   }
+    // };
+    
+    // // Download/stream the PDF file
+    // export const downloadAgreement = async (req, res) => {
+    //   try {
+    //     const ag = await Agreement.findById(req.params.id);
+    //     if (!ag) return res.status(404).json({ message: "Agreement not found" });
+    
+    //     // Simple access control again
+    //     const me = req.userId || req.ownerId || req.renterId || req.adminId;
+    //     if (!req.adminId && String(ag.ownerID) !== String(me) && String(ag.renterID) !== String(me)) {
+    //       return res.status(403).json({ message: "Forbidden" });
+    //     }
+    
+    //     if (!fs.existsSync(ag.filePath)) {
+    //       return res.status(410).json({ message: "File no longer exists on server" });
+    //     }
+    
+    //     return res.download(ag.filePath, ag.fileName);
+    //   } catch (err) {
+    //     console.error("downloadAgreement error:", err);
+    //     return res.status(500).json({ message: "Server error" });
+    //   }
+    // };

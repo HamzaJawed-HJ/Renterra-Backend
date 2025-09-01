@@ -4,8 +4,6 @@ import authMiddleware from "../middleware/authMiddleware.js";
 import {
   generateAgreement,
   listMyAgreements,
-  getAgreement,
-  downloadAgreement,
   getAgreementDetails,
 } from "../controllers/agreementController.js";
 
@@ -17,11 +15,11 @@ router.post("/generate", authMiddleware, generateAgreement);
 // List mine (admin sees all)
 router.get("/", authMiddleware, listMyAgreements);
 
-// Get one agreement's metadata
-router.get("/single/:id", authMiddleware, getAgreement);
+// // Get one agreement's metadata
+// router.get("/single/:id", authMiddleware, getAgreement);
 
-// Download the PDF
-router.get("/:id/download", authMiddleware, downloadAgreement);
+// // Download the PDF
+// router.get("/:id/download", authMiddleware, downloadAgreement);
 
 
 // GET Agreement details by rentalRequestId

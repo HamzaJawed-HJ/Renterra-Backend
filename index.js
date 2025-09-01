@@ -16,6 +16,9 @@ import adminRoutes from './routes/adminRoutes.js';
 
 import agreementRoutes from "./routes/agreementRoutes.js";
 
+
+import paymentRoutes from "./routes/paymentRoutes.js";
+
 // Load environment variables
 dotenv.config();
 
@@ -41,6 +44,7 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/admin', adminRoutes);
 app.use("/api/agreements", agreementRoutes);
+app.use("/api/payments", paymentRoutes);
 
 
 
