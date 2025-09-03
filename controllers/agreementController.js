@@ -161,6 +161,41 @@ export const listMyAgreements = async (req, res) => {
 };
 
 
+// ✅ Mark Agreement as Completed (Owner only)
+export const markAgreementCompleted = async (req, res) => {
+  try {
+    const { agreementId } = req.params;
+    const ownerId = req.ownerId; // comes from token middleware
+
+    // 1. Find Agreement
+    const agreement = await Agreement.findById(agreementId);
+    if (!agreement) {
+      return res.status(404).json({ message: "Agreement not found" });
+    }
+
+
+    // 3. Only allow active → completed
+    if (agreement.status !== "active") {
+      return res.status(400).json({ message: "Agreement already completed" });
+    }
+
+    // 4. Update status
+    agreement.status = "completed";
+    await agreement.save();
+
+    // 5. Return success message
+    return res.status(200).json({
+      success: true,
+      message: "Agreement marked as completed",
+    });
+  } catch (error) {
+    console.error("markAgreementCompleted error:", error);
+    return res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+
+
 
 //data dtaiied through rental request id 
 export const getAgreementDetails = async (req, res) => {

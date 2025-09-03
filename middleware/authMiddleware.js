@@ -27,6 +27,7 @@ const authMiddleware = (req, res, next) => {
     if(verified.role.toLowerCase() === "admin"){
       req.adminId = verified.id;
       req.admin = verified.id;
+        console.log("Admin " +req.adminId )
     }
    
     next();

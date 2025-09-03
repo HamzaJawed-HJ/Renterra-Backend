@@ -12,6 +12,9 @@ const agreementSchema = new mongoose.Schema(
     pickupDate:  { type: Date, required: true },
     returnDate:  { type: Date, required: true },
 
+    status: { type: String, enum: ["active", "completed"], default: "active" },
+
+
     fileName: { type: String, required: true },
     filePath: { type: String, required: true },
     fileUrl:  { type: String, required: true }, // e.g. /uploads/agreements/...

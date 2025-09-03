@@ -5,6 +5,7 @@ import {
   generateAgreement,
   listMyAgreements,
   getAgreementDetails,
+  markAgreementCompleted 
 } from "../controllers/agreementController.js";
 
 const router = express.Router();
@@ -14,6 +15,9 @@ router.post("/generate", authMiddleware, generateAgreement);
 
 // List mine (admin sees all)
 router.get("/", authMiddleware, listMyAgreements);
+
+// ✅ Owner marks agreement as completed
+router.put("/:agreementId/complete",authMiddleware , markAgreementCompleted);
 
 // // Get one agreement's metadata
 // router.get("/single/:id", authMiddleware, getAgreement);

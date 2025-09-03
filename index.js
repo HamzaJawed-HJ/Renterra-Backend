@@ -16,6 +16,8 @@ import adminRoutes from './routes/adminRoutes.js';
 
 import agreementRoutes from "./routes/agreementRoutes.js";
 
+import reviewRoutes from "./routes/reviewRoutes.js";
+
 
 import paymentRoutes from "./routes/paymentRoutes.js";
 
@@ -45,6 +47,7 @@ app.use('/api/chat', chatRoutes);
 app.use('/api/admin', adminRoutes);
 app.use("/api/agreements", agreementRoutes);
 app.use("/api/payments", paymentRoutes);
+app.use("/api/reviews", reviewRoutes);
 
 
 
