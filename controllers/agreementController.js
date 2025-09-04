@@ -149,7 +149,7 @@ export const listMyAgreements = async (req, res) => {
 
     const items = await Agreement.find(query)
       .populate("productID", "name category location")
-      .populate("ownerID", "fullName email")
+      .populate("ownerID", "fullName email profilePicture")
       .populate("renterID", "fullName email")
       .sort({ createdAt: -1 });
 
