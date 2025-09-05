@@ -37,8 +37,7 @@ export const createProduct = async (req, res) => {
 // Get All Products
 export const getAllProducts = async (req, res) => {
     try {
-        const products = await Product.find();
-        //  .populate("ownerID", "fullName email");
+        const products = await Product.find().populate("ownerID", "fullName email profilePicture");
         res.status(200).json(products);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -182,7 +181,7 @@ export const getMyProducts = async (req, res) => {
     const ownerID = req.ownerId;
 
     try {
-        const products = await Product.find({ ownerID: ownerID }); // 👈 filters only this user's products
+        const products = await Product.find({ ownerID: ownerID }).populate("ownerID", "fullName email profilePicture"); // 👈 filters only this user's products
         res.status(200).json(products);
     } catch (error) {
         res.status(500).json({ message: error.message });

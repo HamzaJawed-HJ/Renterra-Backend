@@ -35,7 +35,14 @@ export const createReview = async (req, res) => {
       comment,
     });
 
-    res.status(201).json({ message: "Review added successfully", review });
+    // 5. Mark Agreement as reviewed
+    agreement.reviewed = true;
+    await agreement.save();
+
+    console.log("Marking agreement as reviewed:", agreementId);
+    res.status(201).json({
+      success: true,
+      message: "Review added successfully", review });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error", error: error.message });
@@ -47,9 +54,9 @@ export const getOwnerReviews = async (req, res) => {
   try {
     const { ownerId } = req.params;
     const reviews = await Review.find({ ownerId })
-      .populate("renterId", "name email")
-      .populate("productId", "title");
-
+      .populate("renterId", "fullName email profilePicture")
+      .populate("productId", "name image price");
+      
     res.json(reviews);
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });

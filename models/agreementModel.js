@@ -14,6 +14,7 @@ const agreementSchema = new mongoose.Schema(
 
     status: { type: String, enum: ["active", "completed"], default: "active" },
 
+  reviewed: { type: Boolean, default: false },
 
     fileName: { type: String, required: true },
     filePath: { type: String, required: true },
