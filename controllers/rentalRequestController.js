@@ -5,7 +5,7 @@ import { createNotification } from './notificationController.js'; // Import noti
 import Owner from '../models/owner.js';
 import Notification  from '../models/notificationModel.js';
 
-
+import Agreement from "../models/agreementModel.js";
 // Create Rental Request
 export const createRentalRequest = async (req, res) => {
     const { productId } = req.body; // Get the product ID from the request body
@@ -104,23 +104,54 @@ export const updateRentalRequestStatus = async (req, res) => {
     }
 };
 
-// Get All Rental Requests for a User
+// // Get All Rental Requests for a User
+// export const getAllRentalRequests = async (req, res) => {
+//     // FIXED: Handle different user ID fields from middleware
+//     const userId = req.ownerId || req.renterId || req.userId || req.user?.id;
+
+//     try {
+//         // Get all rental requests where the user is either the renter or the owner
+//         const rentalRequests = await RentalRequest.find({
+//             $or: [{ ownerID: userId }, { renterID: userId }],
+//         }).populate('productID renterID ownerID');
+
+//         console.log('Fetched rental requests for user:', rentalRequests);
+//         res.status(200).json(rentalRequests);
+//     } catch (error) {
+//         console.error('Error in getAllRentalRequests:', error);
+//         res.status(500).json({ message: error.message });
+//     }
+// };
+
+
 export const getAllRentalRequests = async (req, res) => {
-    // FIXED: Handle different user ID fields from middleware
-    const userId = req.ownerId || req.renterId || req.userId || req.user?.id;
+  const userId = req.ownerId || req.renterId || req.userId || req.user?.id;
 
-    try {
-        // Get all rental requests where the user is either the renter or the owner
-        const rentalRequests = await RentalRequest.find({
-            $or: [{ ownerID: userId }, { renterID: userId }],
-        }).populate('productID renterID ownerID');
+  try {
+    // Get all rental requests where the user is either the renter or the owner
+    const rentalRequests = await RentalRequest.find({
+      $or: [{ ownerID: userId }, { renterID: userId }],
+    }).populate("productID renterID ownerID");
 
-        res.status(200).json(rentalRequests);
-    } catch (error) {
-        console.error('Error in getAllRentalRequests:', error);
-        res.status(500).json({ message: error.message });
-    }
+    // ✅ For each request, check if an agreement exists
+    const requestsWithAgreement = await Promise.all(
+      rentalRequests.map(async (reqDoc) => {
+        const agreement = await Agreement.findOne({ rentalRequestId: reqDoc._id });
+        // ✅ Add field directly to the mongoose document (not changing response shape)
+        reqDoc = reqDoc.toObject();
+        reqDoc.hasAgreement = !!agreement;
+        return reqDoc;
+      })
+    );
+
+    // console.log("Fetched rental requests for user:", requestsWithAgreement);
+    res.status(200).json(requestsWithAgreement);
+  } catch (error) {
+    console.error("Error in getAllRentalRequests:", error);
+    res.status(500).json({ message: error.message });
+  }
 };
+
 
 // Add this new controller function
 export const deleteRentalRequest = async (req, res) => {

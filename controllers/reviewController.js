@@ -63,19 +63,60 @@ export const getOwnerReviews = async (req, res) => {
   }
 };
 
-// ✅ Get reviews for logged-in owner (my reviews)
+// // ✅ Get reviews for logged-in owner (my reviews)
+// export const getMyReviews = async (req, res) => {
+//   try {
+//     const ownerId = req.ownerId;
+
+//     const reviews = await Review.find({ ownerId })
+//          .populate("renterId", "fullName email profilePicture")
+//       .populate("productId", "name image price");
+//     res.json(reviews);
+//   } catch (error) {
+//     res.status(500).json({ message: "Server error", error: error.message });
+//   }
+// };
+
 export const getMyReviews = async (req, res) => {
   try {
-    const ownerId = req.ownerId;
-    const reviews = await Review.find({ ownerId })
-      .populate("renterId", "name email")
-      .populate("productId", "title");
+    let reviews;
 
+    if (req.ownerId) {
+      // Owner → see reviews written about them
+      reviews = await Review.find({ ownerId: req.ownerId })
+        .populate("renterId", "fullName email profilePicture")
+        .populate("productId", "name image price");
+    } 
+    else if (req.renterId) {
+      // Renter/User → see reviews they gave
+      reviews = await Review.find({ renterId: req.renterId })
+        .populate("ownerId", "fullName email profilePicture")
+         .populate("renterId", "fullName email profilePicture")
+        .populate("productId", "name image price");
+    } 
+    else if (req.adminId) {
+      // Optional: Admin → see all reviews
+      reviews = await Review.find()
+        .populate("renterId", "fullName email profilePicture")
+        .populate("ownerId", "fullName email profilePicture")
+        .populate("productId", "name image price");
+    } 
+    else {
+      return res.status(403).json({ message: "Unauthorized role" });
+    }
+
+     // 🔥 Keep the same response so frontend won’t crash
     res.json(reviews);
+    // res.json({
+    //   success: true,
+    //   count: reviews.length,
+    //   reviews,
+    // });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
+
 
 // ✅ Admin delete review
 export const deleteReview = async (req, res) => {
