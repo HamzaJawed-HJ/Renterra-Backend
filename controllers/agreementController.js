@@ -148,7 +148,7 @@ export const listMyAgreements = async (req, res) => {
     const query = req.adminId ? {} : { $or: [{ ownerID: me }, { renterID: me }] };
 
     const items = await Agreement.find(query)
-      .populate("productID", "name category location")
+      .populate("productID", "name category location price")
       .populate("ownerID", "fullName email profilePicture")
       .populate("renterID", "fullName email")
       .sort({ createdAt: -1 });

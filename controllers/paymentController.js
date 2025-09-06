@@ -2,79 +2,95 @@
 import stripe from "../config/stripe.js";
 import Payment from "../models/paymentModel.js";
 import Agreement from "../models/agreementModel.js";
+import Product from "../models/productModel.js";
 
-export const createCheckoutSession = async (req, res) => {
+// 1. Create PaymentIntent
+export const createPaymentIntent = async (req, res) => {
   try {
     const { agreementId } = req.body;
 
-    const agreement = await Agreement.findById(agreementId);
-    if (!agreement) return res.status(404).json({ message: "Agreement not found" });
+    // Fetch Agreement
+    const agreement = await Agreement.findById(agreementId).populate("productID");
+    if (!agreement) {
+      return res.status(404).json({ message: "Agreement not found" });
+    }
 
-    // Example: fixed rent amount (you can fetch from product)
-    const amount = 1000 * 100; // 1000 PKR → 100000 paisa
+     // Prevent duplicate payments
+    const existingPayment = await Payment.findOne({ agreementId });
+    if (existingPayment) {
+      return res.status(400).json({ message: "Payment already done for this agreement" });
+    }
 
-    // Create a Payment record first
+    // Get price from Product
+    const product = agreement.productID;
+    if (!product || !product.price) {
+      return res.status(400).json({ message: "Product or price not found" });
+    }
+
+    // Convert USD price → cents
+    const amount = Math.round((product.price/ 280)* 100); // e.g., $10.99 → 1099 cents
+
+    // Create PaymentIntent in Stripe
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount,
+      currency: "usd", // ✅ charging in USD
+      payment_method_types: ["card"],
+    });
+
+    // Save in DB
     const payment = await Payment.create({
       agreementId,
+       payerId: agreement.renterID, // renter is paying
       amount,
-      currency: "pkr",
+      currency: "usd",
       status: "pending",
+      stripePaymentIntentId: paymentIntent.id,
     });
 
-    // Create Stripe checkout session
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: ["card"],
-      line_items: [
-        {
-          price_data: {
-            currency: "pkr",
-            product_data: {
-              name: `Agreement #${agreement._id}`,
-            },
-            unit_amount: amount,
-          },
-          quantity: 1,
-        },
-      ],
-      mode: "payment",
-      success_url: `${process.env.FRONTEND_URL}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.FRONTEND_URL}/payment-cancel`,
+    res.json({
+      clientSecret: paymentIntent.client_secret, // frontend uses this
+      paymentId: payment._id,
     });
-
-    // Save sessionId in DB
-    payment.stripeSessionId = session.id;
-    await payment.save();
-
-    res.json({ url: session.url }); // frontend will redirect to this URL
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Error creating checkout session" });
+    console.error("Error in createPaymentIntent:", error);
+    res.status(500).json({ message: "Error creating payment intent" });
   }
 };
 
-// After redirect success
-export const verifyPayment = async (req, res) => {
+// 2. Verify PaymentIntent (after Flutter confirms)
+export const verifyPaymentIntent = async (req, res) => {
   try {
-    const { session_id } = req.query;
+    const { payment_intent_id } = req.query;
 
-    const session = await stripe.checkout.sessions.retrieve(session_id);
-    if (!session) return res.status(404).json({ message: "Session not found" });
+    if (!payment_intent_id) {
+      return res.status(400).json({ message: "Missing payment_intent_id" });
+    }
 
-    const payment = await Payment.findOne({ stripeSessionId: session_id });
-    if (!payment) return res.status(404).json({ message: "Payment not found" });
+    const paymentIntent = await stripe.paymentIntents.retrieve(payment_intent_id );
+    if (!paymentIntent) {
+      return res.status(404).json({ message: "PaymentIntent not found" });
+    }
 
-    if (session.payment_status === "paid") {
+    const payment = await Payment.findOne({ stripePaymentIntentId: payment_intent_id  });
+    if (!payment) {
+      return res.status(404).json({ message: "Payment record not found" });
+    }
+
+    if (paymentIntent.status === "succeeded") {
       payment.status = "paid";
-      payment.stripePaymentIntentId = session.payment_intent;
+       // if paid → update agreement
+  if (payment.status === "paid") {
+    await Agreement.findByIdAndUpdate(payment.agreementId, { isPaid: true });
+  }
       await payment.save();
-    } else {
+    } else if (paymentIntent.status === "requires_payment_method") {
       payment.status = "failed";
       await payment.save();
     }
 
     res.json({ status: payment.status });
   } catch (error) {
-    console.error(error);
+    console.error("Error in verifyPaymentIntent:", error);
     res.status(500).json({ message: "Error verifying payment" });
   }
 };

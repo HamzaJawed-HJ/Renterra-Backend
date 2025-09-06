@@ -3,12 +3,21 @@ import mongoose from "mongoose";
 
 const paymentSchema = new mongoose.Schema(
   {
-    agreementId: { type: mongoose.Schema.Types.ObjectId, ref: "Agreement", required: true },
-    amount: { type: Number, required: true }, // amount in paisa (smallest currency unit)
-    currency: { type: String, default: "pkr" },
+    agreementId: { 
+      type: mongoose.Schema.Types.ObjectId, 
+      ref: "Agreement", 
+      required: true 
+    },
 
-    stripeSessionId: { type: String },   // Stripe Checkout session ID
-    stripePaymentIntentId: { type: String }, // Stripe payment intent ID
+    payerId: { 
+      type: mongoose.Schema.Types.ObjectId, 
+      ref: "Owner",   // the renter who made the payment
+      required: true 
+    },
+    amount: { type: Number, required: true }, // stored in cents
+    currency: { type: String, default: "usd" },
+
+    stripePaymentIntentId: { type: String, required: true }, // main link to Stripe
     status: { 
       type: String, 
       enum: ["pending", "paid", "failed"], 
