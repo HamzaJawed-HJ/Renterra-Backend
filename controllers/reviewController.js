@@ -63,19 +63,6 @@ export const getOwnerReviews = async (req, res) => {
   }
 };
 
-// // ✅ Get reviews for logged-in owner (my reviews)
-// export const getMyReviews = async (req, res) => {
-//   try {
-//     const ownerId = req.ownerId;
-
-//     const reviews = await Review.find({ ownerId })
-//          .populate("renterId", "fullName email profilePicture")
-//       .populate("productId", "name image price");
-//     res.json(reviews);
-//   } catch (error) {
-//     res.status(500).json({ message: "Server error", error: error.message });
-//   }
-// };
 
 export const getMyReviews = async (req, res) => {
   try {
@@ -122,8 +109,20 @@ export const getMyReviews = async (req, res) => {
 export const deleteReview = async (req, res) => {
   try {
     const { reviewId } = req.params;
+
+    // 1. Find the review first
+    const review = await Review.findById(reviewId);
+    if (!review) {
+      return res.status(404).json({ message: "Review not found" });
+    }
+
+    // 2. Delete the review
     await Review.findByIdAndDelete(reviewId);
-    res.json({ message: "Review deleted successfully" });
+
+    // 3. Update the agreement’s reviewed field to false
+    await Agreement.findByIdAndUpdate(review.agreementId, { reviewed: false });
+
+    res.json({ message: "Review deleted successfully and agreement updated" });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
   }
