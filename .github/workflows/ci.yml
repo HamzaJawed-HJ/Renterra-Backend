@@ -8,6 +8,12 @@ jobs:
     build-node-app:
         runs-on: ubuntu-latest
 
+        #cancel old commit and run latest commit  
+        concurrency:
+            group: deploy
+            cancel-in-progress: true
+
+
         steps:
          - name: Checkout Repository
            uses: actions/checkout@v4.2.2
@@ -17,7 +23,7 @@ jobs:
              node-version: 22.x
              cache: 'npm'
 
-             
+
          - name: Install Dependencies
            run: npm install
          - name: test app
