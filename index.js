@@ -33,7 +33,7 @@ app.use(express.json());
 
 // Static file serving for uploads
 // D:\Fyp Course\Renterra-Backend
-const uploadsFolder = path.resolve('D:\\New folder', 'uploads');
+const uploadsFolder = path.resolve('D:\\Renterra Project\\Renterra-Backend', 'uploads');
 app.use('/uploads', express.static(uploadsFolder));
 
 // Routes

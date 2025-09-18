@@ -1,0 +1,24 @@
+name: build node js app
+
+on:
+    push:
+        branches: [main]
+
+jobs:
+    build-node-app:
+        runs-on: ubuntu-latest
+
+        steps:
+         - name: Checkout Repository
+           uses: actions/checout@v4.2.2
+         - name: Setup Node js
+           uses: actions/steup-node@v4.2.0
+           with:
+             node-version: 22.x
+
+         - name: Install Dependencies
+           run: npm insatall
+         - name: Build Express App
+           run: npm run build
+
+
