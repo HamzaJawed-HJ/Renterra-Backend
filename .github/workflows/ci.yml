@@ -17,7 +17,7 @@ jobs:
              node-version: 22.x
 
          - name: Install Dependencies
-           run: npm insatall
+           run: npm install
          - name: Build Express App
            run: npm run build
 
