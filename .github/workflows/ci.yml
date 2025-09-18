@@ -18,6 +18,8 @@ jobs:
 
          - name: Install Dependencies
            run: npm install
+         - name: test app
+           run: npm test
          - name: Build Express App
            run: npm run build
 
